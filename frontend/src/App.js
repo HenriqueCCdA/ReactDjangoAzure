@@ -18,6 +18,7 @@ function App() {
           Learn React
         </a>
       </header>
+      <div>copyright &copy;</div>
     </div>
   );
 }

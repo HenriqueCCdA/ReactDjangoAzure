@@ -3,5 +3,7 @@ import userEvent from '@testing-library/user-event';
 import App from '../App'
 
 test('Happy path test', async () => {
-    return (<App />);
+    render(<App />);
+    const copyrightText = await screen.findByText(/copyright/);
+    expect(copyrightText).toBeInTheDocument();
 })
