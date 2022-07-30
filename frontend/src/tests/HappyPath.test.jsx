@@ -14,9 +14,7 @@ test("Happy path test", async () => {
     const signInText = await screen.findByRole("heading", { name: /sign in/i });
     expect(signInText).toBeInTheDocument();
 
-    const emailField = await screen.findByRole("textbox", {
-        name: /email address/i,
-    });
+    const emailField = await screen.findByRole("textbox", { name: /email address/i });
     expect(emailField).toBeInTheDocument();
 
     const passwordField = await screen.findByLabelText(/password/i);
@@ -36,13 +34,20 @@ test("Happy path test", async () => {
     const registerName = await screen.findByRole('textbox', { name: /name/i })
     expect(registerName).toBeInTheDocument();
 
+    const registerEmail = await screen.findByRole("textbox", { name: /email address/i });
+    expect(registerEmail).toBeInTheDocument();
+
     const registerPassword = await screen.findByLabelText(/enter password/i);
     expect(registerPassword).toBeInTheDocument();
+
+    // const confirmPassword = await screen.findByLabelText(/confirm password/i);
+    // expect(confirmPassword).toBeInTheDocument();
+
 
     const signInLink = await screen.findByRole('link', { name: /sign in/i });
     expect(signInLink).toBeInTheDocument();
 
-    const registerButton = await screen.findByRole('link', { name: /register/i });
+    const registerButton = await screen.findByRole('button', { name: /register/i });
     expect(registerButton).toBeInTheDocument();
     expect(registerButton).toBeDisabled();
 
@@ -55,8 +60,8 @@ test("Happy path test", async () => {
     userEvent.clear(registerPassword);
     userEvent.type(registerPassword, 'LetMeIn1234!');
 
-    userEvent.clear(registerPassword);
-    userEvent.type(registerPassword, 'LetMeIn1234!');
+    userEvent.clear(confirmPassword);
+    userEvent.type(confirmPassword, 'LetMeIn1234!');
 
     expect(registerButton).toBeEnabled()
 
