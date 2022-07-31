@@ -65,4 +65,12 @@ test("Happy path test", async () => {
 
     expect(registerButton).toBeEnabled()
 
+    userEvent.click(registerButton);
+
+    const verifyEmailText = await screen.findByRole('heading', { name: /Verify Email/i });
+    expect(verifyEmailText).toBeInTheDocument();
+
+    expect(screen.getByText(/A verification email has been sent to james@example.com/i)).toBeInTheDocument();
+    expect(screen.getByText(/Please click on the link in the email to verify your account/i)).toBeInTheDocument();
+
 });
