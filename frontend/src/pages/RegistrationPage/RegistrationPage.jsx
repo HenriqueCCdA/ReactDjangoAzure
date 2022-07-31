@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { checkPasswordComplexity } from '../../utilities';
 
 function RegistrationPage() {
 
@@ -8,7 +9,28 @@ function RegistrationPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    let registerButtonEnabled = (name && email && password && confirmPassword);
+    const [submitButtonEnabled, setSubmitButtonEnabled] = useState(false);
+    const [passwordGood, setPasswordGood] = useState(false);
+    const [passwordTyped, setPasswordTyped] = useState(false);
+
+    useEffect(() => {
+        if (password || confirmPassword) {
+            setPasswordTyped(true);
+        }
+
+        if (checkPasswordComplexity(password, confirmPassword).length === 0) {
+            setPasswordGood(true);
+        } else {
+            setPasswordGood(false);
+        }
+
+        if (name && email && passwordGood) {
+            setSubmitButtonEnabled(true);
+        } else {
+            setSubmitButtonEnabled(false);
+        }
+
+    }, [name, email, password, confirmPassword, passwordGood]);
 
 
     return (
@@ -31,7 +53,7 @@ function RegistrationPage() {
                             <Form.Control
                                 type='email'
                                 placeholder='Enter Email'
-                                value={name}
+                                value={email}
                                 onChange={e => setEmail(e.target.value)} />
                         </Form.Group>
                         <Form.Group controlId="password">
@@ -39,7 +61,7 @@ function RegistrationPage() {
                             <Form.Control
                                 type="password"
                                 placeholder="Enter password"
-                                value={name}
+                                value={password}
                                 onChange={e => setPassword(e.target.value)} />
                         </Form.Group>
                         <Form.Group controlId='confirmPassword'>
@@ -47,10 +69,27 @@ function RegistrationPage() {
                             <Form.Control
                                 type='password'
                                 placeholder='Confirm password'
-                                value={name}
+                                value={confirmPassword}
                                 onChange={e => setConfirmPassword(e.target.value)} />
                         </Form.Group>
-                        <Button type='submit' variant='primary' disabled={!registerButtonEnabled}>Register</Button>
+                        {passwordTyped ?
+                            passwordGood ?
+                                (
+                                    <div>Password complexity is good</div>
+                                ) :
+                                (
+                                    <Alert variant='danger' sytle={{ backgroundColor: 'yellow' }}>
+                                        {checkPasswordComplexity(password, passwordGood).map(e => {
+                                            if (e) {
+                                                return <li key={e}>{e}</li>
+                                            }
+                                        })}
+                                    </Alert>
+                                ) : (
+                                <div></div>
+                            )
+                        }
+                        <Button type='submit' variant='primary' disabled={!submitButtonEnabled}>Register</Button>
                     </Form>
                 </Col>
             </Row>
