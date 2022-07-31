@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { checkEmailAddressFormat, checkPasswordComplexity } from '../../utilities';
+import axios from 'axios';
+
 
 function RegistrationPage() {
 
@@ -35,9 +37,33 @@ function RegistrationPage() {
         }
 
         if (loading) {
-            setResults(true);
-            setLoading(false);
-            setSuccess(true);
+
+            const req_config = {
+                headers: {
+                    'Content-type': 'application/json',
+                },
+            };
+
+            axios
+                .post(
+                    "http://localhost/registration",
+                    {
+                        email: email,
+                        password: password,
+                        name: name,
+                    },
+                    req_config
+                )
+                .then(response => {
+                    setResults(true);
+                    setLoading(false);
+                    setSuccess(true);
+                })
+                .catch(error => {
+                    setResults(true);
+                    setLoading(false);
+                    setSuccess(false);
+                });
         }
 
     }, [loading, results, name, email, password, confirmPassword, passwordGood]);
