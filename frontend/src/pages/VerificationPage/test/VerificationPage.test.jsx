@@ -27,53 +27,53 @@ test("The verification link sends a request to backend and is successful", async
     expect(loginLink).toBeInTheDocument();
 });
 
-// test("The verification page displays error", async () => {
-//     const history = createBrowserHistory();
-//     history.push("/verifyEmail/BadVerificationSecret");
+test("The verification page displays error", async () => {
+    const history = createBrowserHistory();
+    history.push("/verifyEmail/BadVerificationSecret");
 
-//     render(
-//         <Router history={history}>
-//             <App />
-//         </Router>
-//     );
+    render(
+        <Router history={history}>
+            <App />
+        </Router>
+    );
 
-//     const errorMessage = await screen.findByRole("heading", { name: /Unable To Verify Email/i, });
-//     expect(errorMessage).toBeInTheDocument();
-// });
+    const errorMessage = await screen.findByRole("heading", { name: /Unable To Verify Email/i, });
+    expect(errorMessage).toBeInTheDocument();
+});
 
-// test("The verification page displays loading", async () => {
-//     function _sleep(ms) {
-//         return new Promise((resolve) => setTimeout(resolve, ms));
-//     }
+test("The verification page displays loading", async () => {
+    function _sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
 
-//     server.resetHandlers(
-//         rest.post(VERIFY_EMAIL_ENDPOINT, async (req, res, ctx) => {
-//             await _sleep(2000);
-//             return res(ctx.status(500));
-//         })
-//     );
+    server.resetHandlers(
+        rest.post(VERIFY_EMAIL_ENDPOINT, async (req, res, ctx) => {
+            await _sleep(2000);
+            return res(ctx.status(500));
+        })
+    );
 
-//     const history = createBrowserHistory();
-//     history.push("/verifyEmail/BadVerificationSecret");
+    const history = createBrowserHistory();
+    history.push("/verifyEmail/BadVerificationSecret");
 
-//     render(
-//         <Router history={history}>
-//             <App />
-//         </Router>
-//     );
+    render(
+        <Router history={history}>
+            <App />
+        </Router>
+    );
 
-//     const loadingMessage = await screen.findByText(/loading/i);
-//     expect(loadingMessage).toBeInTheDocument();
+    const loadingMessage = await screen.findByText(/loading/i);
+    expect(loadingMessage).toBeInTheDocument();
 
-//     // Because we are delaying the response so long (2 seconds),
-//     // we need to wait for loading to be removed
-//     // or it will assume things went wrong.
-//     await waitForElementToBeRemoved(screen.queryByText(/loading/i), {
-//         timeout: 5000,
-//     });
+    // Because we are delaying the response so long (2 seconds),
+    // we need to wait for loading to be removed
+    // or it will assume things went wrong.
+    await waitForElementToBeRemoved(screen.queryByText(/loading/i), {
+        timeout: 5000,
+    });
 
-//     const errorMessage = await screen.findByRole("heading", {
-//         name: /Unable To Verify Email/i,
-//     });
-//     expect(errorMessage).toBeInTheDocument();
-// });
+    const errorMessage = await screen.findByRole("heading", {
+        name: /Unable To Verify Email/i,
+    });
+    expect(errorMessage).toBeInTheDocument();
+});
