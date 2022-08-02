@@ -7,7 +7,7 @@ function LoginPage() {
         <Container>
             <Row className='justify-content-md-center'>
                 <Col>
-                    <h1>Sign In</h1>
+                    <h1>Log In</h1>
                     <Form>
                         <Form.Group controlId='email'>
                             <Form.Label>Email Address</Form.Label>
@@ -24,7 +24,7 @@ function LoginPage() {
                                 placeholder='Enter Password'
                             ></Form.Control>
                         </Form.Group>
-                        <Button type='submit' variant='primary' disabled="True">Sign In</Button>
+                        <Button type='submit' variant='primary' disabled="True">Log In</Button>
                     </Form>
                     <Row className='py-3'>
                         <Col>
