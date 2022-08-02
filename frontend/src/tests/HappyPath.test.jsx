@@ -57,10 +57,10 @@ test("Happy path test", async () => {
     userEvent.type(registerEmail, 'james@example.com');
 
     userEvent.clear(registerPassword);
-    userEvent.type(registerPassword, 'LetMeIn1234@!');
+    userEvent.type(registerPassword, 'LetMeIn1234!');
 
     userEvent.clear(confirmPassword);
-    userEvent.type(confirmPassword, 'LetMeIn1234@!');
+    userEvent.type(confirmPassword, 'LetMeIn1234!');
 
     expect(registerButton).toBeEnabled()
 
