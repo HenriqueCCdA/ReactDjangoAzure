@@ -3,6 +3,7 @@ import { Container, Row, Col, Form, Button, Alert } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { checkEmailAddressFormat, checkPasswordComplexity } from '../../utilities';
 import axios from 'axios';
+import { REGISTRATION_ENDPOINT } from '../../constants/urls';
 
 
 function RegistrationPage() {
@@ -46,7 +47,7 @@ function RegistrationPage() {
 
             axios
                 .post(
-                    "http://localhost/registration",
+                    REGISTRATION_ENDPOINT,
                     {
                         email: email,
                         password: password,
