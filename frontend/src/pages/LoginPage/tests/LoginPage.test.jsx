@@ -50,9 +50,9 @@ test("User cannot log in", async () => {
         name: /email address/i,
     });
     expect(emailField).toBeInTheDocument();
-    var passwordField = await screen.findByLabelText(/password/i);
+    let passwordField = await screen.findByLabelText(/password/i);
     expect(passwordField).toBeInTheDocument();
-    var loginButton = await screen.findByRole("button", { name: /log in/i });
+    let loginButton = await screen.findByRole("button", { name: /log in/i });
     expect(loginButton).toBeInTheDocument();
     expect(loginButton).toBeDisabled();
 
