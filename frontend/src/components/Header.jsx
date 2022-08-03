@@ -1,7 +1,7 @@
 import React from "react";
 import { Navbar, Nav, Container } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import { useUserDetails } from '../context/UserContext';
+import { useUserDetails } from "../context/UserContext";
 
 function Header() {
     const [userDetails] = useUserDetails();
@@ -13,25 +13,32 @@ function Header() {
                     <LinkContainer to="/">
                         <Navbar.Brand>React Django Base Web Site</Navbar.Brand>
                     </LinkContainer>
-                    <Nav className="mr-auto">
-                        {userDetails.accessToken ? (
-                            <LinkContainer to='/profile'>
+                    {userDetails.accessToken ? (
+                        <Nav className="mr-auto">
+                            <LinkContainer to="/profile">
                                 <Nav.Link>
-                                    <i className="fa fa-user"></i>
+                                    <i className="fas fa-user"></i>
                                     {userDetails.name}
                                 </Nav.Link>
                             </LinkContainer>
-                        ) : (
-                            < LinkContainer to="/login">
+                            <LinkContainer to="/logout">
+                                <Nav.Link>
+                                    <i className="fas fa-sign-out-alt"></i>Logout
+                                </Nav.Link>
+                            </LinkContainer>
+                        </Nav>
+                    ) : (
+                        <Nav className="mr-auto">
+                            <LinkContainer to="/login">
                                 <Nav.Link>
                                     <i className="fas fa-user"></i>Login
                                 </Nav.Link>
                             </LinkContainer>
-                        )}
-                    </Nav>
+                        </Nav>
+                    )}
                 </Container>
             </Navbar>
-        </header >
+        </header>
     );
 }
 
