@@ -40,6 +40,7 @@ function LoginPage({ history }) {
                     req_config
                 )
                 .then((response) => {
+                    localStorage.setItem('userDetails', JSON.stringify(response.data));
                     updateUserDetails(response.data.access, response.data.refresh);
                     setLoading(false);
                     setError(false);

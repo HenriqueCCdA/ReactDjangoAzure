@@ -3,6 +3,8 @@ import userEvent from "@testing-library/user-event";
 import App from "../../../App";
 
 test("User can log in", async () => {
+
+    localStorage.clear();
     render(<App />);
 
     const loginLink = await screen.findByRole("link", { name: /login/i });
@@ -40,6 +42,7 @@ test("User can log in", async () => {
 });
 
 test("User cannot log in", async () => {
+    localStorage.clear()
     render(<App />);
 
     const loginLink = await screen.findByRole("link", { name: /login/i });
