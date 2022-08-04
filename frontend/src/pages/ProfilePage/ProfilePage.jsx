@@ -4,9 +4,14 @@ import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { useUserDetails } from '../../context/UserContext';
 
 
-function ProfilePage() {
+function ProfilePage({ history }) {
 
     const [userDetails] = useUserDetails();
+
+    if (!userDetails.accessToken) {
+        history.push("/login");
+    }
+
     const [formName, setFormName] = useState(userDetails.name);
 
     return (
@@ -21,7 +26,7 @@ function ProfilePage() {
                                 type='name'
                                 placehoder='Enter Full Name'
                                 defaultValue={formName}
-                                onChange={e => setForm(e.target.value)}
+                                onChange={e => setFormName(e.target.value)}
                             />
                         </Form.Group>
                         <Form.Group controlId='password'>
