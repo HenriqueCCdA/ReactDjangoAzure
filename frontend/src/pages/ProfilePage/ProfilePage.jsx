@@ -4,6 +4,7 @@ import { Container, Form, Button, Row, Col } from 'react-bootstrap';
 import { useUserDetails } from '../../context/UserContext';
 import { PROFILE_UPDATE_ENDPOINT } from '../../constants/urls';
 import axios from 'axios';
+import Alert from 'react-bootstrap/Alert';
 
 
 function ProfilePage({ history }) {
@@ -15,6 +16,7 @@ function ProfilePage({ history }) {
     }
 
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     const [formName, setFormName] = useState(userDetails.name);
 
@@ -44,9 +46,11 @@ function ProfilePage({ history }) {
                         })
                     );
                     setLoading(false);
+                    setError(false)
                 })
                 .catch((error) => {
                     setLoading(false);
+                    setError(true)
                 });
         }
     }, [loading]);
@@ -55,6 +59,7 @@ function ProfilePage({ history }) {
     const submitHandler = e => {
         e.preventDefault();
         setLoading(true);
+        setError(false);
     }
 
 
@@ -63,6 +68,13 @@ function ProfilePage({ history }) {
             <Row>
                 <Col>
                     <h1>User Profile</h1>
+                    {error ? (
+                        <Alert variant='danger' style={{ brackgroundColor: 'red' }}>
+                            Unable to update profile. Try again later.
+                        </Alert>
+                    ) : (
+                        <div />
+                    )}
                     <Form onSubmit={submitHandler}>
                         <Form.Group controlId='name'>
                             <Form.Label> Full Name </Form.Label>
