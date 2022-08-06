@@ -4,7 +4,7 @@ import { Button, Col, Container, Form, Row } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { FORGOT_PASSWORD_ENDPOINT } from '../../constants/urls';
-
+import { checkEmailAddressFormat } from '../../utilities';
 
 function ForgotPasswordPage() {
 
@@ -15,7 +15,7 @@ function ForgotPasswordPage() {
     const [resetSuccess, setResetSuccess] = useState(false);
 
     useEffect(() => {
-        if (formEmail) {
+        if (checkEmailAddressFormat(formEmail)) {
             setSubmitButtonEnabled(true);
         } else {
             setSubmitButtonEnabled(false);
@@ -43,8 +43,8 @@ function ForgotPasswordPage() {
                     setResetSuccess(true);
                 })
                 .catch(error => {
-                    setError(true);
                     setLoading(false);
+                    setError(true);
                 })
         }
     }, [formEmail, loading, error]);
@@ -56,7 +56,9 @@ function ForgotPasswordPage() {
         setResetSuccess(false);
     }
 
-    if (resetSuccess) {
+    if (loading) {
+        return <div>Loading</div>
+    } else if (resetSuccess) {
         return (
             <Container>
                 <Row>
@@ -68,9 +70,19 @@ function ForgotPasswordPage() {
                 </Row>
             </Container>
         )
+    } else if (error) {
+        return (
+            <Container>
+                <Row>
+                    <Col>
+                        <p>
+                            There was an error with the request. Please try again later.
+                        </p>
+                    </Col>
+                </Row>
+            </Container>
+        )
     } else
-
-
         return (
             <Container>
                 <Row>
