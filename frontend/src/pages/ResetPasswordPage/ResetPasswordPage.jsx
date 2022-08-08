@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Row, Col, Container } from 'react-bootstrap';
+import { Form, Button, Row, Col, Container, Alert } from 'react-bootstrap';
 import axios from 'axios';
 import { RESET_PASSWORD_ENDPOINT } from '../../constants/urls';
 import { Link } from 'react-router-dom';
-
+import { checkPasswordComplexity } from '../../utilities';
 
 function ResetPasswordPage({ match }) {
 
@@ -13,6 +13,7 @@ function ResetPasswordPage({ match }) {
     const [loading, setLoading] = useState(false);
     const [resetSuccess, setResetSuccess] = useState(false);
     const [error, setError] = useState(false);
+    const [passwordTyped, setPasswordTyped] = useState(false);
 
     let resetSecret = "";
     try {
@@ -22,10 +23,17 @@ function ResetPasswordPage({ match }) {
     }
 
     useEffect(() => {
-        if (password === confirmPassword && password) {
-            setSubmitButtonEnabled(true);
-        } else {
-            setSubmitButtonEnabled(false);
+
+        if (password || confirmPassword) {
+            setPasswordTyped(true);
+        }
+
+        if (passwordTyped) {
+            if (checkPasswordComplexity(password, confirmPassword).length === 0) {
+                setSubmitButtonEnabled(true);
+            } else {
+                setSubmitButtonEnabled(false);
+            }
         }
     }, [password, confirmPassword]);
 
@@ -54,7 +62,6 @@ function ResetPasswordPage({ match }) {
                     req_config
                 )
                 .then(response => {
-                    console.log('e')
                     setLoading(false);
                     setResetSuccess(true);
                     setError(false);
@@ -67,8 +74,9 @@ function ResetPasswordPage({ match }) {
         }
     }, [loading, password]);
 
-
-    if (error) {
+    if (loading) {
+        return <div>Loading</div>
+    } else if (error) {
         return (
             <Container>
                 <Row>
@@ -124,6 +132,25 @@ function ResetPasswordPage({ match }) {
                                 Reset Password
                             </Button>
                         </Form>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        {passwordTyped ? (
+                            submitButtonEnabled ? (
+                                <div>Password complexity is good</div>
+                            ) : (
+                                <Alert variant="danger" style={{ backgroundColor: 'yellow' }}>
+                                    {checkPasswordComplexity(password, confirmPassword).map(e => {
+                                        if (e) {
+                                            return <li key={e}>{e}</li>
+                                        }
+                                    })}
+                                </Alert>
+                            )
+                        ) : (
+                            <div></div>
+                        )}
                     </Col>
                 </Row>
             </Container>
