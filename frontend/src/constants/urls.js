@@ -9,3 +9,5 @@ export const LOGIN_ENDPOINT = BACKEND_URL + 'api/users/token/';
 export const PROFILE_UPDATE_ENDPOINT = BACKEND_URL + 'api/users/profile/update/';
 
 export const FORGOT_PASSWORD_ENDPOINT = BACKEND_URL + 'api/users/password/forgot/';
+
+export const RESET_PASSWORD_ENDPOINT = BACKEND_URL + 'api/users/password/reset/';

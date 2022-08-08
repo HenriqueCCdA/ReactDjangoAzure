@@ -21,40 +21,40 @@ test("Reset password page displays as expected", async () => {
     expect(resetButton).toBeDisabled();
 });
 
-// test("Reset password page sends a request to backend", async () => {
-//     localStorage.clear();
-//     const history = createBrowserHistory();
-//     history.push("/resetPassword/12345678901234567890123456789012");
+test("Reset password page sends a request to backend", async () => {
+    localStorage.clear();
+    const history = createBrowserHistory();
+    history.push("/resetPassword/12345678901234567890123456789012");
 
-//     render(
-//         <Router history={history}>
-//             <App />
-//         </Router>
-//     );
+    render(
+        <Router history={history}>
+            <App />
+        </Router>
+    );
 
-//     const password = await screen.findByLabelText(/^password/i);
-//     const confirmPassword = await screen.findByLabelText(/confirm password/i);
-//     const resetButton = await screen.findByRole("button", {
-//         name: /reset password/i,
-//     });
+    const password = await screen.findByLabelText(/^password/i);
+    const confirmPassword = await screen.findByLabelText(/confirm password/i);
+    const resetButton = await screen.findByRole("button", {
+        name: /reset password/i,
+    });
 
-//     userEvent.clear(password);
-//     userEvent.type(password, "MyNewPassword123!");
-//     expect(resetButton).toBeDisabled();
+    userEvent.clear(password);
+    userEvent.type(password, "MyNewPassword123!");
+    expect(resetButton).toBeDisabled();
 
-//     userEvent.clear(confirmPassword);
-//     userEvent.type(confirmPassword, "MyNewPassword123!");
-//     expect(resetButton).toBeEnabled();
+    userEvent.clear(confirmPassword);
+    userEvent.type(confirmPassword, "MyNewPassword123!");
+    expect(resetButton).toBeEnabled();
 
-//     userEvent.click(resetButton);
+    userEvent.click(resetButton);
 
-//     const msgAboutEmail = await screen.findByText(
-//         /your password has been reset/i
-//     );
-//     expect(msgAboutEmail).toBeInTheDocument();
-//     const loginLink = await screen.findByRole("link", { name: /log in/i });
-//     expect(loginLink).toBeInTheDocument();
-//     userEvent.click(loginLink);
-//     const loginButton = await screen.findByRole("button", { name: /log in/i });
-//     expect(loginButton).toBeInTheDocument();
-// });
+    const msgAboutEmail = await screen.findByText(
+        /your password has been reset/i
+    );
+    expect(msgAboutEmail).toBeInTheDocument();
+    const loginLink = await screen.findByRole("link", { name: /log in/i });
+    expect(loginLink).toBeInTheDocument();
+    userEvent.click(loginLink);
+    const loginButton = await screen.findByRole("button", { name: /log in/i });
+    expect(loginButton).toBeInTheDocument();
+});
