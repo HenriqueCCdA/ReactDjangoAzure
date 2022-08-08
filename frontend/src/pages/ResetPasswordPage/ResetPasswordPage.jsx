@@ -12,6 +12,7 @@ function ResetPasswordPage({ match }) {
     const [submitButtonEnabled, setSubmitButtonEnabled] = useState(false);
     const [loading, setLoading] = useState(false);
     const [resetSuccess, setResetSuccess] = useState(false);
+    const [error, setError] = useState(false);
 
     let resetSecret = "";
     try {
@@ -32,6 +33,7 @@ function ResetPasswordPage({ match }) {
         e.preventDefault();
         setLoading(true);
         setResetSuccess(false);
+        setError(false);
     }
 
     useEffect(() => {
@@ -55,17 +57,34 @@ function ResetPasswordPage({ match }) {
                     console.log('e')
                     setLoading(false);
                     setResetSuccess(true);
+                    setError(false);
                 })
                 .catch(error => {
                     setLoading(false);
                     setResetSuccess(false);
+                    setError(true);
                 })
         }
     }, [loading, password]);
 
 
-
-    if (resetSuccess) {
+    if (error) {
+        return (
+            <Container>
+                <Row>
+                    <Col>
+                        <p>An error occurred resetting the password</p>
+                    </Col>
+                </Row>
+                <Row>
+                    <Col>
+                        <Link to='/login'>log in</Link> if you an  account already!
+                    </Col>
+                </Row>
+            </Container>
+        )
+    }
+    else if (resetSuccess) {
         return (
             <Container>
                 <Row>
