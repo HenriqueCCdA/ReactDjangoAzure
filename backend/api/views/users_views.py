@@ -4,6 +4,9 @@ from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from django.db.utils import IntegrityError
+from django.core.mail import send_mail
+from django.conf import settings
+
 
 User = get_user_model()
 
@@ -24,13 +27,29 @@ def registerUser(request):
                 sent_verification_email=False,
                 verified_email=False
             )
-            return Response(status=status.HTTP_200_OK)
-
         except IntegrityError:
             message={'message': 'user already exists'}
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
 
         except:
             message={'message': 'user could not be registered'}
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            send_mail(
+                f'Verify your user account for {settings.WEB_SITE_NAME}, please go to {settings.VERIFICATION_URL}',
+                f'To verify your user account for {settings.WEB_SITE_NAME}, please go to {settings.VERIFICATION_URL}',
+                settings.SENDER_EMAIL,
+                [request.data['email']],
+                fail_silently=False,
+                html_message=f'Please <a href="{settings.VERIFICATION_URL}">click this link</a> to verify your user account for {settings.WEB_SITE_NAME}.',
+            )
+            user.sent_verification_email=True
+            user.save()
+        except:
+            message={'message': 'Verification email could not be sent.'}
+            return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        return Response(message, status=status.HTTP_200_OK)
 
     else:
         message={'message': 'user information missing'}
