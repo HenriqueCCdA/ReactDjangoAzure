@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
-
+from django.db.utils import IntegrityError
 
 User = get_user_model()
 
@@ -25,10 +25,14 @@ def registerUser(request):
                 verified_email=False
             )
             return Response(status=status.HTTP_200_OK)
+
+        except IntegrityError:
+            message={'message': 'user already exists'}
+
         except:
             message={'message': 'user could not be registered'}
 
     else:
         message={'message': 'user information missing'}
 
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(message, status=status.HTTP_400_BAD_REQUEST)
