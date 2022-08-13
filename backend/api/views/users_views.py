@@ -3,14 +3,28 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
 from django.db.utils import IntegrityError
 from django.core.mail import send_mail
 from django.conf import settings
 from django.utils.crypto import get_random_string
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 
 User = get_user_model()
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['name'] = user.name
+
+        return token
+
+class  MyTokenObtainPairView(TokenObtainPairView):
+    serializer_class = MyTokenObtainPairSerializer
 
 
 @api_view(['POST'])
@@ -21,7 +35,7 @@ def registerUser(request):
             user = User.objects.create_user(
                 email=request.data['email'],
                 name=request.data['name'],
-                password=make_password(request.data['password']),
+                password=request.data['password'],
                 is_active=False,
                 is_staff=False,
                 is_superuser=False,
@@ -53,3 +67,14 @@ def registerUser(request):
         return Response({'message': 'user register'}, status=status.HTTP_200_OK)
 
     return Response({'message': 'user information missing'}, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def verifyUser(request, verification_secret):
+    try:
+        user=User.objects.get(verification_email_secret=verification_secret)
+        user.verified_email=True
+        user.is_active=True
+        user.save()
+        return Response({'message': 'user verified'}, status=status.HTTP_200_OK)
+    except:
+        return Response({'message': 'unable to verify user'}, status=status.HTTP_400_BAD_REQUEST)
