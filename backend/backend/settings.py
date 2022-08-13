@@ -125,6 +125,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 WEB_SITE_NAME = os.getenv('DJANGO_WEB_SITE_NAME')
 VERIFICATION_URL = os.getenv('DJANGO_VERIFICATION_URL')
 SENDER_EMAIL = os.getenv('DJANGO_SENDER_EMAIL')

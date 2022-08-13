@@ -8,10 +8,9 @@ from django.conf import settings
 User = get_user_model()
 
 class UserTestCase(TestCase):
-
     def helper_create_user(self):
         user = User.objects.create(
-            name='James Smith',
+            name="James Smith",
             email='james@example.com',
             password=make_password('LetMeIn123!')
         )
@@ -19,53 +18,59 @@ class UserTestCase(TestCase):
 
 @patch('api.views.users_views.send_mail')
 class RegisterUserAPITests(UserTestCase):
-    def test_user_can_be_register(self, mock_send_email):
-        self.assertRaises(User.DoesNotExist, User.objects.get, email='james@example.com')
+    def test_user_can_be_registered(self, mock_send_mail):
+        self.assertRaises(User.DoesNotExist, User.objects.get,email='james@example.com' )
         response = self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         self.assertEqual(response.status_code, 200)
         user = User.objects.get(email='james@example.com')
         self.assertIsNotNone(user)
 
-    def test_registered_user_has_correct_settings(self, mock_send_email):
-        self.assertRaises(User.DoesNotExist, User.objects.get, email='james@example.com')
+    def test_registered_user_has_correct_settings(self, mock_send_mail):
+        self.assertRaises(User.DoesNotExist, User.objects.get,email='james@example.com' )
         response = self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         user = User.objects.get(email='james@example.com')
-        self.assertEqual(user.name, 'James Smith')
-        self.assertEqual(user.email, 'james@example.com')
+        self.assertEqual(user.name, "James Smith")
+        self.assertEqual(user.email, "james@example.com")
         self.assertFalse(user.is_active)
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
         self.assertTrue(user.sent_verification_email)
         self.assertFalse(user.verified_email)
+        self.assertNotEqual(user.verification_email_secret, "")
+        self.assertIsNotNone(user.verification_email_secret)
 
-    def test_missing_name_returns_bad_request(self, mock_send_email):
+    def test_missing_name_returns_bad_request(self, mock_send_mail):
         response = self.client.post('/api/users/register/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
         self.assertEqual(response.status_code, 400)
 
-    def test_missing_email_returns_bad_request(self, mock_send_email):
+    def test_missing_email_returns_bad_request(self, mock_send_mail):
         response = self.client.post('/api/users/register/', data={'name': 'James Smith', 'password': 'LetMeIn123!'})
         self.assertEqual(response.status_code, 400)
 
-    def test_missing_password_returns_bad_request(self, mock_send_email):
+    def test_missing_password_returns_bad_request(self, mock_send_mail):
         response = self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com'})
         self.assertEqual(response.status_code, 400)
 
-    def test_existing_user_returns_error_message(self, mock_send_email):
+    def test_existing_user_returns_error_message(self, mock_send_mail):
         self.helper_create_user()
         response = self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.data['message'], 'user already exists')
+        self.assertEqual(response.data['message'], "user already exists")
 
     def test_registered_user_gets_verification_email(self, mock_send_mail):
-        self.assertRaises(User.DoesNotExist, User.objects.get, email='james@example.com')
+        self.assertRaises(User.DoesNotExist, User.objects.get,email='james@example.com' )
         response = self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         user = User.objects.get(email='james@example.com')
         self.assertTrue(user.sent_verification_email)
         self.assertEqual(mock_send_mail.called, True)
         (subject, body, from_email, to_list), kwargs = mock_send_mail.call_args
-        self.assertEqual(subject, f'Verify your user account for {settings.WEB_SITE_NAME}, please go to {settings.VERIFICATION_URL}')
-        self.assertEqual(to_list, ['james@example.com'])
-        self.assertIn('html_message', kwargs)
+        self.assertEqual(subject, f"Verify your user account for {settings.WEB_SITE_NAME}")
+        self.assertEqual(body, f'To verify your user account for {settings.WEB_SITE_NAME}, please go to {settings.VERIFICATION_URL}{user.verification_email_secret}')
+        self.assertRegex(body, f'To verify your user account for {settings.WEB_SITE_NAME}, please go to {settings.VERIFICATION_URL}[0-9A-Za-z]{{32}}$')
+        self.assertEqual(from_email, settings.SENDER_EMAIL)
+        self.assertEqual(to_list,['james@example.com'])
+        self.assertIn("html_message", kwargs)
         for key, value in kwargs.items():
-            if key == 'html_message':
-                self.assertEqual(value, f'Please <a href="{settings.VERIFICATION_URL}">click this link</a> to verify your user account for {settings.WEB_SITE_NAME}.')
+            if key == "html_message":
+                self.assertEqual(value, f'Please <a href="{settings.VERIFICATION_URL}{user.verification_email_secret}">click this link</a> to verify your user account for {settings.WEB_SITE_NAME}.')
+                self.assertRegex(value, f'Please <a href="{settings.VERIFICATION_URL}[0-9A-Za-z]{{32}}">click this link</a> to verify your user account for {settings.WEB_SITE_NAME}\.$')
