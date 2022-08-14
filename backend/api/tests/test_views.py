@@ -98,7 +98,7 @@ class VerifyUserEmailAPITests(UserTestCase):
     def test_verification_email_link(self, mock_send_mail):
         self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         user = User.objects.get(email='james@example.com')
-        response = self.client.get(f'/api/users/verify/{user.verification_email_secret}')
+        response = self.client.get(f'/api/users/email/verify/{user.verification_email_secret}')
         user = User.objects.get(email='james@example.com')
         self.assertTrue(user.verified_email)
         self.assertTrue(user.is_active)
@@ -106,14 +106,14 @@ class VerifyUserEmailAPITests(UserTestCase):
     def test_verification_email_link_returns_200(self, mock_send_mail):
         self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         user = User.objects.get(email='james@example.com')
-        response = self.client.get(f'/api/users/verify/{user.verification_email_secret}')
+        response = self.client.get(f'/api/users/email/verify/{user.verification_email_secret}')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data['message'], "user verified")
 
     def test_bogus_verification_does_not_work(self, mock_send_mail):
         self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         user = User.objects.get(email='james@example.com')
-        response = self.client.get(f'/api/users/verify/4BCDEFGH1JKLmNOpqrSTUVWXYZ')
+        response = self.client.get(f'/api/users/email/verify/4BCDEFGH1JKLmNOpqrSTUVWXYZ')
         user = User.objects.get(email='james@example.com')
         self.assertFalse(user.verified_email)
         self.assertFalse(user.is_active)
@@ -121,10 +121,19 @@ class VerifyUserEmailAPITests(UserTestCase):
     def test_bogus_verification_returns_400(self, mock_send_mail):
         self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
         user = User.objects.get(email='james@example.com')
-        response = self.client.get(f'/api/users/verify/4BCDEFGH1JKLmNOpqrSTUVWXYZ')
+        response = self.client.get(f'/api/users/email/verify/4BCDEFGH1JKLmNOpqrSTUVWXYZ')
         user = User.objects.get(email='james@example.com')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data['message'], "unable to verify user")
+
+    def test_a_verified_user_can_login(self, mock_send_mail):
+        self.client.post('/api/users/register/', data={'name': 'James Smith', 'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        user = User.objects.get(email='james@example.com')
+        response = self.client.get(f'/api/users/email/verify/{user.verification_email_secret}')
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        self.assertEqual(response.status_code, 200)
+
 
 class UserAuthenticationTests(UserTestCase):
     def test_user_can_login(self):
@@ -360,5 +369,37 @@ class PasswordResetTests(UserTestCase):
         self.client.post(f'/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": user.reset_password_secret})
         response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
         self.assertEqual(response.status_code, 401)
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'MyNewPasswordIWillNotForget123!'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_fails_with_no_reset_secret(self, mock_send_mail):
+        self.helper_create_user()
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(f'/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!'})
+        self.assertEqual(response.status_code, 400)
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_fails_on_blank_reset_secret(self, mock_send_mail):
+        self.helper_create_another_user()
+        self.helper_create_user()
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        self.assertEqual(response.status_code, 200)
+        response=self.client.post(f'/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": ""})
+        self.assertEqual(response.status_code, 400)
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        self.assertEqual(response.status_code, 200)
+
+    def test_password_reset_clears_reset_secret(self, mock_send_mail):
+        self.helper_create_another_user()
+        self.helper_create_user()
+        response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
+        self.assertEqual(response.status_code, 200)
+        self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
+        user = User.objects.get(email='james@example.com')
+        self.client.post(f'/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": user.reset_password_secret})
+        user = User.objects.get(email='james@example.com')
+        self.assertIsNone(user.reset_password_secret)
         response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'MyNewPasswordIWillNotForget123!'})
         self.assertEqual(response.status_code, 200)
