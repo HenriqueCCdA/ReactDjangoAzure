@@ -283,35 +283,35 @@ class UpdateUserProfileTests(UserTestCase):
 @patch('api.views.users_views.send_mail')
 class PasswordResetTests(UserTestCase):
     def test_anything_but_post_request_returns_405_error(self, mock_send_mail):
-        response = self.client.get('/api/users/password/reset/')
+        response = self.client.get('/api/users/password/forgot/')
         self.assertEqual(response.status_code, 405)
-        response = self.client.put('/api/users/password/reset/')
+        response = self.client.put('/api/users/password/forgot/')
         self.assertEqual(response.status_code, 405)
-        response = self.client.patch('/api/users/password/reset/')
+        response = self.client.patch('/api/users/password/forgot/')
         self.assertEqual(response.status_code, 405)
 
     def test_no_email_returns_400(self, mock_send_mail):
         self.helper_create_user()
         self.helper_create_another_user()
-        response = self.client.post('/api/users/password/reset/')
+        response = self.client.post('/api/users/password/forgot/')
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_email_returns_200(self, mock_send_mail):
         self.helper_create_user()
         self.helper_create_another_user()
-        response = self.client.post('/api/users/password/reset/', data={'email': 'nobody@example.com'})
+        response = self.client.post('/api/users/password/forgot/', data={'email': 'nobody@example.com'})
         self.assertEqual(response.status_code, 200)
 
     def test_valid_email_returns_200(self, mock_send_mail):
         self.helper_create_user()
         self.helper_create_another_user()
-        response = self.client.post('/api/users/password/reset/', data={'email': 'james@example.com'})
+        response = self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
         self.assertEqual(response.status_code, 200)
 
     def test_valid_email_sends_a_password_reset_email(self, mock_send_mail):
         self.helper_create_user()
         self.helper_create_another_user()
-        self.client.post('/api/users/password/reset/', data={'email': 'james@example.com'})
+        self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
         user = User.objects.get(email='james@example.com')
 
         self.assertEqual(mock_send_mail.called, True)
@@ -327,27 +327,27 @@ class PasswordResetTests(UserTestCase):
                 self.assertEqual(value, f'Please <a href="{settings.RESET_PASSWORD_URL}{user.reset_password_secret}">click this link</a> to reset your password for {settings.WEB_SITE_NAME}.')
                 self.assertRegex(value, f'Please <a href="{settings.RESET_PASSWORD_URL}[0-9A-Za-z]{{32}}">click this link</a> to reset your password for {settings.WEB_SITE_NAME}\.$')
 
-    # def test_password_reset_shows_vague_error_on_failure(self, mock_send_mail):
-    #     self.helper_create_user()
-    #     self.helper_create_another_user()
-    #     self.client.post('/api/users/password/reset/', data={'email': 'james@example.com'})
-    #     response = self.client.post('/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": "1234567890123fdaacdsad"})
-    #     self.assertEqual(response.status_code, 400)
+    def test_password_reset_shows_vague_error_on_failure(self, mock_send_mail):
+        self.helper_create_user()
+        self.helper_create_another_user()
+        self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
+        response = self.client.post('/api/users/password/forgot/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": "1234567890123fdaacdsad"})
+        self.assertEqual(response.status_code, 400)
 
     # def test_password_reset_shows_reset_message_on_success(self, mock_send_mail):
     #     self.helper_create_user()
     #     self.helper_create_another_user()
-    #     self.client.post('/api/users/password/reset/', data={'email': 'james@example.com'})
+    #     self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
     #     user = User.objects.get(email='james@example.com')
-    #     response = self.client.post(f'/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": user.reset_password_secret})
+    #     response = self.client.post(f'/api/users/password/forgot/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": user.reset_password_secret})
     #     self.assertEqual(response.status_code, 200)
 
     # def test_password_reset_fails_with_good_secret_but_no_password(self, mock_send_mail):
     #     self.helper_create_user()
     #     self.helper_create_another_user()
-    #     self.client.post('/api/users/password/reset/', data={'email': 'james@example.com'})
+    #     self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
     #     user = User.objects.get(email='james@example.com')
-    #     response = self.client.post(f'/api/users/password/reset/', data={"reset_secret": user.reset_password_secret})
+    #     response = self.client.post(f'/api/users/password/forgot/', data={"reset_secret": user.reset_password_secret})
     #     self.assertEqual(response.status_code, 400)
 
     # def test_password_reset_changes_password(self, mock_send_mail):
@@ -355,9 +355,9 @@ class PasswordResetTests(UserTestCase):
     #     self.helper_create_another_user()
     #     response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
     #     self.assertEqual(response.status_code, 200)
-    #     self.client.post('/api/users/password/reset/', data={'email': 'james@example.com'})
+    #     self.client.post('/api/users/password/forgot/', data={'email': 'james@example.com'})
     #     user = User.objects.get(email='james@example.com')
-    #     self.client.post(f'/api/users/password/reset/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": user.reset_password_secret})
+    #     self.client.post(f'/api/users/password/forgot/', data={'password': 'MyNewPasswordIWillNotForget123!', "reset_secret": user.reset_password_secret})
     #     response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'LetMeIn123!'})
     #     self.assertEqual(response.status_code, 401)
     #     response = self.client.post('/api/users/token/', data={'email': 'james@example.com', 'password': 'MyNewPasswordIWillNotForget123!'})
