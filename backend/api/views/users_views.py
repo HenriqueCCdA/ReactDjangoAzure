@@ -112,5 +112,23 @@ def updateUserProfile(request):
 @api_view(['POST'])
 def forgotPassword(request):
     if 'email' in request.data:
+        reset_secret = get_random_string(length=32)
+        try:
+            user = User.objects.get(email=request.data['email'])
+            user.reset_password_secret = reset_secret
+            user.save()
+        except:
+            return Response()
+        try:
+            send_mail(
+                f'Password reset for your account on {settings.WEB_SITE_NAME}',
+                f'To reset your password for {settings.WEB_SITE_NAME}, please go to {settings.RESET_PASSWORD_URL}{reset_secret}',
+                settings.SENDER_EMAIL,
+                [request.data['email']],
+                fail_silently=False,
+                html_message=f'Please <a href="{settings.RESET_PASSWORD_URL}{reset_secret}">click this link</a> to reset your password for {settings.WEB_SITE_NAME}.'
+            )
+        except:
+            pass
         return Response()
     return Response(status=status.HTTP_400_BAD_REQUEST)
