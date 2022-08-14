@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.db.utils import IntegrityError
 from django.core.mail import send_mail
 from django.conf import settings
@@ -87,3 +88,19 @@ def userProfile(request):
     user = request.user
     serializer = UserSerializer(user, many=False)
     return Response(serializer.data)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def updateUserProfile(request):
+    update_flag = False
+    user = User.objects.get(email=request.user)
+    if 'name' in request.data:
+        user.name = request.data['name']
+        update_flag = True
+    if 'password' in request.data:
+        user.password=make_password(request.data['password'])
+        update_flag = True
+    if update_flag:
+        user.save()
+    return Response()
