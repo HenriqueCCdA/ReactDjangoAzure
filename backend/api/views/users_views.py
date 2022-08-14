@@ -107,3 +107,10 @@ def updateUserProfile(request):
     access_token = RefreshToken.for_user(user)
     access_token['name'] = user.name
     return Response({'access': str(access_token.access_token), 'refresh': str(access_token)})
+
+
+@api_view(['POST'])
+def forgotPassword(request):
+    if 'email' in request.data:
+        return Response()
+    return Response(status=status.HTTP_400_BAD_REQUEST)
