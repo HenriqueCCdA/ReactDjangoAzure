@@ -39,7 +39,9 @@ function RegistrationPage() {
         } else {
             setSubmitButtonEnabled(false);
         }
+    }, [name, email, password, confirmPassword, passwordGood,]);
 
+    useEffect(() => {
         if (loading) {
             const req_config = {
                 headers: {
@@ -67,16 +69,7 @@ function RegistrationPage() {
                     setSuccess(false);
                 });
         }
-    }, [
-        loading,
-        results,
-        success,
-        name,
-        email,
-        password,
-        confirmPassword,
-        passwordGood,
-    ]);
+    }, [loading]);
 
     const submitHandler = (e) => {
         e.preventDefault();
