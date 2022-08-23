@@ -72,10 +72,11 @@ def registerUser(request):
 
     return Response({'message': 'user information missing'}, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-def verifyUser(request, verification_secret):
+@api_view(['POST'])
+def verifyUser(request):
     try:
-        user=User.objects.get(verification_email_secret=verification_secret)
+        verification_secret = request.data['verification_secret']
+        user = User.objects.get(verification_email_secret=verification_secret)
         user.verified_email=True
         user.is_active=True
         user.save()
