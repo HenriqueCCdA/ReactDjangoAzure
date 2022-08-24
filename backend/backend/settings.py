@@ -164,8 +164,6 @@ else:
     STATIC_URL = 'static/'
 
 
-
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
@@ -187,3 +185,11 @@ EMAIL_HOST_USER = os.getenv('DJANGO_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('DJANGO_EMAIL_HOST_PASSWORD')
 EMAIL_USER_TLS = True
 RESET_PASSWORD_URL= os.getenv('DJANGO_RESSET_PASSWORD_URL')
+
+print('Settings:')
+print(f'CORS_ALLOW_ALL_ORIGINS: {CORS_ALLOW_ALL_ORIGINS}')
+print(f'WEB_SITE_NAME: {WEB_SITE_NAME}')
+print(f'VERIFICATION_URL: {VERIFICATION_URL}')
+print(f'STATIC_URL: {STATIC_URL}')
+# print(f'EMAIL_HOST: {EMAIL_HOST}')
+# print(f'EMAIL_PORT: {EMAIL_PORT}')
