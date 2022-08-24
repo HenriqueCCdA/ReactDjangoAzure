@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useUserDetails } from '../../context/UserContext';
 
 
-function logoutPage({ history }) {
+function LogoutPage({ history }) {
 
     const [userDetails, updateUserDetails] = useUserDetails();
 
@@ -18,4 +18,4 @@ function logoutPage({ history }) {
     )
 }
 
-export default logoutPage;
+export default LogoutPage;
